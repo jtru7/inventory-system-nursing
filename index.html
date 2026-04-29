@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>Nursing Inventory</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div id="app">
+
+    <!-- ===== HEADER ===== -->
+    <header id="app-header">
+      <div class="header-left">
+        <button id="btn-back" class="btn-icon hidden" aria-label="Back">&#8592;</button>
+        <span id="header-title">Nursing Inventory</span>
+      </div>
+      <div class="header-right">
+        <button id="btn-receiving" class="btn-header-action" aria-label="Receiving">Restock</button>
+        <button id="btn-admin" class="btn-header-action" aria-label="Admin">Admin</button>
+      </div>
+    </header>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <main id="main-content"></main>
+
+    <!-- ===== MODAL ===== -->
+    <div id="modal-overlay" class="hidden" role="dialog" aria-modal="true">
+      <div id="modal-content"></div>
+    </div>
+
+    <!-- ===== LOADING ===== -->
+    <div id="loading-overlay" class="hidden" aria-hidden="true">
+      <div class="spinner"></div>
+    </div>
+
+    <!-- ===== TOAST ===== -->
+    <div id="toast" class="hidden" role="status" aria-live="polite"></div>
+
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
