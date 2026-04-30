@@ -629,8 +629,10 @@ function buildAdminItems() {
 
   return `
     <div class="admin-section">
-      <button class="btn btn-primary btn-full admin-add-btn" id="btn-add-item">+ Add Item</button>
       <div class="admin-list">
+        <div class="admin-row admin-add-row">
+          <button class="btn btn-primary btn-full" id="btn-add-item">+ Add Item</button>
+        </div>
         <div class="admin-row admin-toggle-row">
           <label class="toggle-label">
             <input type="checkbox" id="toggle-archived" ${state.showArchived ? 'checked' : ''}>
@@ -667,8 +669,10 @@ function buildAdminItems() {
 function buildAdminRooms() {
   return `
     <div class="admin-section">
-      <button class="btn btn-primary btn-full admin-add-btn" id="btn-add-room">+ Add Room</button>
       <div class="admin-list">
+        <div class="admin-row admin-add-row">
+          <button class="btn btn-primary btn-full" id="btn-add-room">+ Add Room</button>
+        </div>
         ${state.rooms.length === 0
           ? `<div class="empty-state">No rooms yet.</div>`
           : state.rooms.map(room => `
@@ -692,8 +696,10 @@ function buildAdminCourses() {
   const courses = [...state.courses].sort((a, b) => a.name.localeCompare(b.name));
   return `
     <div class="admin-section">
-      <button class="btn btn-primary btn-full admin-add-btn" id="btn-add-course">+ Add Course</button>
       <div class="admin-list">
+        <div class="admin-row admin-add-row">
+          <button class="btn btn-primary btn-full" id="btn-add-course">+ Add Course</button>
+        </div>
         ${courses.length === 0
           ? `<div class="empty-state">No courses yet.</div>`
           : courses.map(course => {
