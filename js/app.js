@@ -16,6 +16,7 @@ const state = {
   searchQuery:    '',
   filterRoom:     '',
   filterCategory: '',
+  sortBy:         'name-asc',
   selectedItemId: null,
   showArchived:   false,
 };
@@ -73,7 +74,14 @@ function getFilteredItems() {
     })
     .filter(i => !state.filterRoom     || i.room_id  === state.filterRoom)
     .filter(i => !state.filterCategory || i.category === state.filterCategory)
-    .sort((a, b) => a.name.localeCompare(b.name));
+    .sort((a, b) => {
+      switch (state.sortBy) {
+        case 'name-desc': return b.name.localeCompare(a.name);
+        case 'qty-asc':   return Number(a.quantity) - Number(b.quantity);
+        case 'qty-desc':  return Number(b.quantity) - Number(a.quantity);
+        default:          return a.name.localeCompare(b.name);
+      }
+    });
 }
 
 function getSelectedItem() {
@@ -222,6 +230,12 @@ function buildHome() {
             `<option value="${c}" ${state.filterCategory === c ? 'selected' : ''}>${esc(c)}</option>`
           ).join('')}
         </select>
+        <select id="sort-by">
+          <option value="name-asc"  ${state.sortBy === 'name-asc'  ? 'selected' : ''}>A → Z</option>
+          <option value="name-desc" ${state.sortBy === 'name-desc' ? 'selected' : ''}>Z → A</option>
+          <option value="qty-asc"   ${state.sortBy === 'qty-asc'   ? 'selected' : ''}>Qty: Low</option>
+          <option value="qty-desc"  ${state.sortBy === 'qty-desc'  ? 'selected' : ''}>Qty: High</option>
+        </select>
         ${lowCount > 0
           ? `<button id="btn-filter-low" class="filter-btn badge-low-stock">&#9888; ${lowCount} Low</button>`
           : ''}
@@ -291,6 +305,11 @@ function attachHomeEvents() {
 
   document.getElementById('filter-category')?.addEventListener('change', e => {
     state.filterCategory = e.target.value;
+    refreshItemList();
+  });
+
+  document.getElementById('sort-by')?.addEventListener('change', e => {
+    state.sortBy = e.target.value;
     refreshItemList();
   });
 
