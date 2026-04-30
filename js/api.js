@@ -6,7 +6,7 @@
 // ================================================================
 
 const CONFIG = {
-  SCRIPT_URL: 'YOUR_APPS_SCRIPT_URL_HERE'
+  SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbykf6-FS_Hp1H0-u4AsY3vrqe3yhX6W7YQgVz-FvUYtxByJvs7MR0AMaEJCAsAOYBjpXw/exec'
 };
 
 const API = {
