@@ -629,14 +629,14 @@ function buildAdminItems() {
 
   return `
     <div class="admin-section">
-      <div class="admin-section-header">
-        <label class="toggle-label">
-          <input type="checkbox" id="toggle-archived" ${state.showArchived ? 'checked' : ''}>
-          Show Archived
-        </label>
-        <button class="btn btn-primary btn-sm" id="btn-add-item">+ Add Item</button>
-      </div>
+      <button class="btn btn-primary btn-full admin-add-btn" id="btn-add-item">+ Add Item</button>
       <div class="admin-list">
+        <div class="admin-row admin-toggle-row">
+          <label class="toggle-label">
+            <input type="checkbox" id="toggle-archived" ${state.showArchived ? 'checked' : ''}>
+            Show Archived
+          </label>
+        </div>
         ${items.length === 0
           ? `<div class="empty-state">No items yet.</div>`
           : items.map(item => `
@@ -667,10 +667,7 @@ function buildAdminItems() {
 function buildAdminRooms() {
   return `
     <div class="admin-section">
-      <div class="admin-section-header">
-        <span></span>
-        <button class="btn btn-primary btn-sm" id="btn-add-room">+ Add Room</button>
-      </div>
+      <button class="btn btn-primary btn-full admin-add-btn" id="btn-add-room">+ Add Room</button>
       <div class="admin-list">
         ${state.rooms.length === 0
           ? `<div class="empty-state">No rooms yet.</div>`
@@ -695,10 +692,7 @@ function buildAdminCourses() {
   const courses = [...state.courses].sort((a, b) => a.name.localeCompare(b.name));
   return `
     <div class="admin-section">
-      <div class="admin-section-header">
-        <span></span>
-        <button class="btn btn-primary btn-sm" id="btn-add-course">+ Add Course</button>
-      </div>
+      <button class="btn btn-primary btn-full admin-add-btn" id="btn-add-course">+ Add Course</button>
       <div class="admin-list">
         ${courses.length === 0
           ? `<div class="empty-state">No courses yet.</div>`

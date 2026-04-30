@@ -699,11 +699,15 @@ input, select, textarea {
 
 .admin-content { padding: 16px; }
 
-.admin-section-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+.admin-add-btn {
+  width: 100%;
   margin-bottom: 12px;
+  font-size: 15px;
+  padding: 14px;
+}
+
+.admin-toggle-row {
+  border-bottom: 1px solid var(--border);
 }
 
 .toggle-label {
