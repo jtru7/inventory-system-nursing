@@ -678,9 +678,6 @@ input, select, textarea {
   display: flex;
   background: var(--surface);
   border-bottom: 1px solid var(--border);
-  position: sticky;
-  top: var(--header-height);
-  z-index: 10;
 }
 
 .admin-tab {
