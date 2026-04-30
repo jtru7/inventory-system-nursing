@@ -87,6 +87,7 @@ function navigate(view, params = {}) {
   state.view = view;
   if (params.itemId    !== undefined) state.selectedItemId = params.itemId;
   if (params.adminTab  !== undefined) state.adminTab       = params.adminTab;
+  document.getElementById('main-content').scrollTop = 0;
   render();
 }
 
