@@ -29,7 +29,7 @@ const API = {
     const res = await fetch(CONFIG.SCRIPT_URL, {
       method: 'POST',
       body: JSON.stringify(payload),
-      headers: { 'Content-Type': 'application/json' }
+      headers: { 'Content-Type': 'text/plain' }
     });
     const data = await res.json();
     if (data.error) throw new Error(data.error);
