@@ -763,7 +763,9 @@ input, select, textarea {
 }
 
 .modal-body   { padding: 24px 20px 32px; }
-.modal-title  { font-size: 19px; font-weight: 700; margin-bottom: 20px; }
+.modal-title          { font-size: 19px; font-weight: 700; margin-bottom: 20px; }
+.modal-title--remove  { color: var(--danger); }
+.modal-title--add     { color: var(--success); }
 .modal-actions {
   display: flex;
   gap: 10px;

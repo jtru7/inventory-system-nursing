@@ -459,20 +459,25 @@ function attachItemDetailEvents() {
 // ADJUSTMENT MODAL
 // ================================================================
 function buildAdjustModal(direction) {
-  const label    = direction > 0 ? 'Adding Stock' : 'Removing Stock';
-  const btnClass = direction > 0 ? 'btn-primary'  : 'btn-danger';
-  const courses  = getActiveCourses();
+  const removing = direction < 0;
+  const titleText  = removing ? '📉 Removing Stock' : '📈 Adding Stock';
+  const titleClass = removing ? 'modal-title--remove' : 'modal-title--add';
+  const qtyLabel   = removing ? 'How many are you removing?' : 'How many are you adding?';
+  const btnClass   = removing ? 'btn-danger' : 'btn-primary';
+  const courses    = getActiveCourses();
 
   return `
     <div class="modal-body">
-      <div class="modal-title">${label}</div>
+      <div class="modal-title ${titleClass}">${titleText}</div>
 
       <div class="form-group">
-        <label>Quantity</label>
+        <label>${qtyLabel}</label>
         <div class="qty-input-row">
-          <button class="btn-qty-adj" id="modal-qty-minus">&#8722;</button>
+          ${removing
+            ? `<button class="btn-qty-adj" id="modal-qty-tap">&#8722;</button>`
+            : `<button class="btn-qty-adj" id="modal-qty-tap">&#43;</button>`
+          }
           <input type="number" id="modal-qty" value="1" min="1" max="9999" class="qty-input">
-          <button class="btn-qty-adj" id="modal-qty-plus">&#43;</button>
         </div>
       </div>
 
@@ -500,13 +505,8 @@ function buildAdjustModal(direction) {
 function attachAdjustModalEvents(direction) {
   const qtyInput = document.getElementById('modal-qty');
 
-  document.getElementById('modal-qty-minus').addEventListener('click', () => {
-    const v = parseInt(qtyInput.value) || 1;
-    if (v > 1) qtyInput.value = v - 1;
-  });
-
-  document.getElementById('modal-qty-plus').addEventListener('click', () => {
-    qtyInput.value = (parseInt(qtyInput.value) || 1) + 1;
+  document.getElementById('modal-qty-tap').addEventListener('click', () => {
+    qtyInput.value = (parseInt(qtyInput.value) || 0) + 1;
   });
 
   document.getElementById('modal-cancel').addEventListener('click', hideModal);
