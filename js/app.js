@@ -624,6 +624,135 @@ function attachReceivingEvents() {
 }
 
 // ================================================================
+// CSV IMPORT
+// ================================================================
+function downloadCsvTemplate() {
+  const rows = [
+    'name,quantity,unit,location,stockroom',
+    'Exam Gloves (M),50,Boxes,3 Yellow 1A,Stock Room 1',
+    'Tourniquets,10,Each,1 Red 1A,Stock Room 2',
+  ];
+  const blob = new Blob([rows.join('\n')], { type: 'text/csv' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = 'inventory-template.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function parseCsv(text) {
+  const lines = text.trim().split('\n').map(l => l.trim()).filter(Boolean);
+  if (lines.length < 2) return [];
+  const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+  return lines.slice(1).map(line => {
+    const vals = line.split(',').map(v => v.trim());
+    const obj  = {};
+    headers.forEach((h, i) => { obj[h] = vals[i] ?? ''; });
+    return obj;
+  });
+}
+
+async function handleCsvUpload(file) {
+  const text = await file.text();
+  const rows = parseCsv(text);
+
+  if (!rows.length) {
+    showToast('CSV is empty or unreadable', 'error');
+    return;
+  }
+
+  const successes = [];
+  const failures  = [];
+
+  // Build a local room name→id map (lowercase keys) to avoid duplicate creates
+  const roomMap = {};
+  state.rooms.forEach(r => { roomMap[r.name.toLowerCase()] = r.id; });
+
+  setLoading(true);
+  for (const row of rows) {
+    const name = (row.name || '').trim();
+    if (!name) { failures.push(`Skipped a row: missing name`); continue; }
+
+    try {
+      const qty          = parseInt(row.quantity)  || 0;
+      const unit         = (row.unit      || '').trim();
+      const locationCode = (row.location  || '').trim();
+      const stockroom    = (row.stockroom || '').trim();
+
+      // Resolve or create room
+      let roomId = '';
+      if (stockroom) {
+        const key = stockroom.toLowerCase();
+        if (roomMap[key]) {
+          roomId = roomMap[key];
+        } else {
+          const res = await API.addRoom(stockroom);
+          roomId = res.id;
+          roomMap[key] = roomId;
+          state.rooms.push({ id: roomId, name: stockroom });
+        }
+      }
+
+      // Match existing active item by name (case-insensitive)
+      const existing = state.items.find(
+        i => i.status === 'active' && i.name.toLowerCase() === name.toLowerCase()
+      );
+
+      if (existing) {
+        await API.editItem({
+          id:                existing.id,
+          name:              existing.name,
+          category:          existing.category          || '',
+          unit:              unit                       || existing.unit          || '',
+          room_id:           roomId                     || existing.room_id       || '',
+          location_code:     locationCode               || existing.location_code || '',
+          reorder_threshold: existing.reorder_threshold || 0,
+        });
+        const delta = qty - Number(existing.quantity);
+        if (delta !== 0) {
+          await API.adjustItem({
+            item_id: existing.id, delta,
+            person_name: 'CSV Import', course_id: '', change_type: 'adjustment'
+          });
+        }
+        successes.push(`Updated: ${name}`);
+      } else {
+        await API.addItem({ name, category: '', unit, room_id: roomId, location_code: locationCode, quantity: qty, reorder_threshold: 0 });
+        successes.push(`Added: ${name}`);
+      }
+    } catch (err) {
+      failures.push(`"${name}": ${err.message}`);
+    }
+  }
+
+  await loadAll();
+  setLoading(false);
+  render();
+  showModal(buildCsvResultModal(successes, failures));
+}
+
+function buildCsvResultModal(successes, failures) {
+  return `
+    <div class="modal-body">
+      <div class="modal-title">Import Complete</div>
+      <div class="csv-result-success">✓ ${successes.length} item${successes.length !== 1 ? 's' : ''} imported successfully</div>
+      ${failures.length > 0 ? `
+        <div class="csv-result-failures">
+          <div class="csv-result-fail-header">✗ ${failures.length} failed:</div>
+          <ul class="csv-fail-list">
+            ${failures.map(f => `<li>${esc(f)}</li>`).join('')}
+          </ul>
+        </div>
+      ` : ''}
+      <div class="modal-actions">
+        <button class="btn btn-primary" id="modal-cancel">Done</button>
+      </div>
+    </div>
+  `;
+}
+
+// ================================================================
 // ADMIN VIEW
 // ================================================================
 function buildAdmin() {
@@ -651,6 +780,11 @@ function buildAdminItems() {
       <div class="admin-list">
         <div class="admin-row admin-add-row">
           <button class="btn btn-primary btn-full" id="btn-add-item">+ Add Item</button>
+        </div>
+        <div class="admin-row admin-csv-row">
+          <button class="btn btn-ghost btn-csv" id="btn-download-template">⬇ Download Template</button>
+          <button class="btn btn-ghost btn-csv" id="btn-upload-csv">⬆ Upload CSV</button>
+          <input type="file" id="csv-file-input" accept=".csv" style="display:none">
         </div>
         <div class="admin-row admin-toggle-row">
           <label class="toggle-label">
@@ -771,6 +905,18 @@ function attachAdminItemEvents() {
   document.getElementById('btn-add-item')?.addEventListener('click', () => {
     showModal(buildItemForm());
     attachItemFormEvents(null);
+  });
+
+  document.getElementById('btn-download-template')?.addEventListener('click', downloadCsvTemplate);
+
+  document.getElementById('btn-upload-csv')?.addEventListener('click', () => {
+    document.getElementById('csv-file-input').click();
+  });
+
+  document.getElementById('csv-file-input')?.addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (file) handleCsvUpload(file);
+    e.target.value = '';
   });
 
   document.querySelectorAll('.btn-edit-item').forEach(btn => {
